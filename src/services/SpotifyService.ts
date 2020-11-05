@@ -2,10 +2,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { Subject } from 'rxjs/internal/Subject';
 import * as vscode from 'vscode';
-
 import {
   COOKIE,
-  MENSAGEM_AUTENTICAR,
   SP_URI_API,
   SP_URI_TOKEN,
   TOKEN,
