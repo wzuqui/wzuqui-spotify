@@ -4,7 +4,7 @@ import { COMANDO } from '../comandos';
 import { ETIQUETA } from '../etiquetas';
 import { ICONE } from '../icones';
 
-export class PlayerComponent {
+export class StatusBarComponent {
   prev!: vscode.StatusBarItem;
   play!: vscode.StatusBarItem;
   next!: vscode.StatusBarItem;
