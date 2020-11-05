@@ -1,0 +1,70 @@
+{
+  "name": "wzuqui-spotify",
+  "displayName": "wzuqui-spotify",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.50.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:wzuqui-spotify.autenticar",
+    "onCommand:wzuqui-spotify.play",
+    "onCommand:wzuqui-spotify.pause",
+    "onCommand:wzuqui-spotify.anterior",
+    "onCommand:wzuqui-spotify.proxima"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "wzuqui-spotify.autenticar",
+        "title": "wZuqui Spotify autenticar"
+      },
+      {
+        "command": "wzuqui-spotify.play",
+        "title": "wZuqui Spotify play"
+      },
+      {
+        "command": "wzuqui-spotify.pause",
+        "title": "wZuqui Spotify pause"
+      },
+      {
+        "command": "wzuqui-spotify.anterior",
+        "title": "wZuqui Spotify anterior"
+      },
+      {
+        "command": "wzuqui-spotify.proxima",
+        "title": "wZuqui Spotify proxima"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run compile",
+    "compile": "tsc -p ./",
+    "lint": "eslint src --ext ts",
+    "watch": "tsc -watch -p ./",
+    "pretest": "yarn run compile && yarn run lint",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.3",
+    "@types/mocha": "^8.0.0",
+    "@types/node": "^12.11.7",
+    "@types/request": "^2.48.5",
+    "@types/vscode": "^1.50.0",
+    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "@typescript-eslint/parser": "^4.1.1",
+    "eslint": "^7.9.0",
+    "glob": "^7.1.6",
+    "mocha": "^8.1.3",
+    "typescript": "^4.0.2",
+    "vscode-test": "^1.4.0"
+  },
+  "dependencies": {
+    "axios": "^0.21.0",
+    "request": "^2.88.2"
+  }
+}
