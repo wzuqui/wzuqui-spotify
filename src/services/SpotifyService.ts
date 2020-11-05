@@ -1,12 +1,28 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import { Subject } from 'rxjs/internal/Subject';
 import * as vscode from 'vscode';
 
-import { COOKIE, MENSAGEM_AUTENTICAR, SP_NEXT, SP_PAUSE, SP_PLAY, SP_PREV, SP_URI_API, SP_URI_TOKEN, TOKEN, USER_AGENT } from '../constants';
+import {
+  COOKIE,
+  MENSAGEM_AUTENTICAR,
+  SP_URI_API,
+  SP_URI_TOKEN,
+  TOKEN,
+  USER_AGENT,
+} from '../constants';
+import { ETIQUETA } from '../etiquetas';
+
+function sanitizaItem(item: Spotify.Item): string {
+  return `${item.name} - ${item.artists
+    .map((artist) => artist.name)
+    .join(' ')}`;
+}
 
 export class SpotifyService {
   private api!: AxiosInstance;
   private player!: Spotify.PlayerResponse;
+  public playing$ = new Subject<[boolean, string]>();
 
   constructor(private context: vscode.ExtensionContext) {
     this._configura();
@@ -21,43 +37,45 @@ export class SpotifyService {
         authorization,
       },
     });
+    this.autenticar();
     this._atualizarPlayer();
   }
 
   private _atualizarPlayer() {
-    setTimeout(async () => {
+    setInterval(async () => {
       try {
-        const { data } = await this.api.get('v1/me/player');
+        const { data } = await this.api.get<Spotify.PlayerResponse>(
+          'v1/me/player'
+        );
         this.player = data;
+        this.playing$.next([data.is_playing, sanitizaItem(data.item)]);
       } catch (err) {
         console.error(err);
       }
-    }, 0);
+    }, 10_000);
   }
 
-  async autenticar() {
-    try {
-      let cookie = await vscode.window.showInputBox({
-        prompt: MENSAGEM_AUTENTICAR,
-      });
-
-      if (cookie === '') {
-        cookie = this.context.globalState.get<string>(COOKIE);
+  autenticar(cookie?: string) {
+    setInterval(async () => {
+      try {
+        if (cookie) {
+          this.context.globalState.update(COOKIE, cookie);
+          this.atualizarToken(cookie);
+          this._configura();
+        }
+      } catch (err) {
+        console.error(err);
       }
-      if (cookie) {
-        this.context.globalState.update(COOKIE, cookie);
-        this.atualizarToken(cookie);
-        this._configura();
-      }
-    } catch (err) {
-      console.error(err);
-    }
+    }, 10_000);
   }
 
   async play() {
     return this.api
       .put(`v1/me/player/play?device_id=${this.player.device.id}`)
-      .then(() => vscode.window.showInformationMessage(SP_PLAY))
+      .then(() => {
+        this.playing$.next([true, '']);
+        vscode.window.showInformationMessage(ETIQUETA.play);
+      })
       .catch((err) => {
         console.error(err);
       });
@@ -66,19 +84,22 @@ export class SpotifyService {
   async pause() {
     return this.api
       .put(`v1/me/player/pause?device_id=${this.player.device.id}`)
-      .then(() => vscode.window.showInformationMessage(SP_PAUSE));
+      .then(() => {
+        this.playing$.next([false, '']);
+        vscode.window.showInformationMessage(ETIQUETA.pause);
+      });
   }
 
   async anterior() {
     return this.api
       .post(`v1/me/player/previous?device_id=${this.player.device.id}`)
-      .then(() => vscode.window.showInformationMessage(SP_PREV));
+      .then(() => vscode.window.showInformationMessage(ETIQUETA.prev));
   }
 
   async proxima() {
     return this.api
       .post(`v1/me/player/next?device_id=${this.player.device.id}`)
-      .then(() => vscode.window.showInformationMessage(SP_NEXT));
+      .then(() => vscode.window.showInformationMessage(ETIQUETA.next));
   }
 
   private async atualizarToken(cookie: string) {

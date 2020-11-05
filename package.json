@@ -11,11 +11,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:wzuqui-spotify.login",
-    "onCommand:wzuqui-spotify.play",
-    "onCommand:wzuqui-spotify.pause",
-    "onCommand:wzuqui-spotify.prev",
-    "onCommand:wzuqui-spotify.next"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -67,6 +63,7 @@
   },
   "dependencies": {
     "axios": "^0.21.0",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "rxjs": "^6.6.3"
   }
 }

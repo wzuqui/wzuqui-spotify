@@ -5,8 +5,3 @@ export const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0;Win64;x64) AppleWebKit/5
 
 export const SP_URI_API = 'https://api.spotify.com';
 export const SP_URI_TOKEN = 'https://open.spotify.com/get_access_token';
-
-export const SP_PLAY = `Start/Resume a User's Playback`;
-export const SP_PAUSE = `Pause a User's Playback`;
-export const SP_NEXT = `Skip User’s Playback To Next Track`;
-export const SP_PREV = `Skip User’s Playback To Previous Track`;
