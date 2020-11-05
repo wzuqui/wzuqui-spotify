@@ -20,10 +20,10 @@ all commands are in F1
 - prev
 - next
 
-![status-bar](.assets/commands.png)
+![status-bar](https://raw.githubusercontent.com/wzuqui/wzuqui-spotify/main/.assets/commands.png)
 
 # screens
 
 ## status-bar
 
-![status-bar](.assets/status-bar.png)
+![status-bar](https://raw.githubusercontent.com/wzuqui/wzuqui-spotify/main/.assets/status-bar.png)
