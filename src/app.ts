@@ -21,8 +21,8 @@ export class App {
 
     subscriptions.push(command(COMANDO.play, () => this.service.play()));
     subscriptions.push(command(COMANDO.pause, () => this.service.pause()));
-    subscriptions.push(command(COMANDO.prev, () => this.service.anterior()));
-    subscriptions.push(command(COMANDO.next, () => this.service.proxima()));
+    subscriptions.push(command(COMANDO.prev, () => this.service.prev()));
+    subscriptions.push(command(COMANDO.next, () => this.service.next()));
     subscriptions.push(command(COMANDO.login, () => this.login()));
   }
 
@@ -44,13 +44,12 @@ export class App {
   }
 
   private async login() {
-    let cookie = await vscode.window.showInputBox({
+    const cookie = await vscode.window.showInputBox({
       prompt: MENSAGEM_AUTENTICAR,
+      value: this.context.globalState.get<string>(COOKIE),
     });
 
-    if (cookie === '') {
-      cookie = this.context.globalState.get<string>(COOKIE);
-    }
-    this.service.autenticar(cookie);
+    this.context.globalState.update(COOKIE, cookie);
+    this.service.updateToken();
   }
 }

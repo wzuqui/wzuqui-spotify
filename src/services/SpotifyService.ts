@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import { Subject } from 'rxjs/internal/Subject';
-import * as vscode from 'vscode';
 import {
   COOKIE,
   SP_URI_API,
@@ -10,6 +6,10 @@ import {
   USER_AGENT,
 } from '../constants';
 import { ETIQUETA } from '../etiquetas';
+/* eslint-disable @typescript-eslint/naming-convention */
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import { Subject } from 'rxjs/internal/Subject';
+import * as vscode from 'vscode';
 
 function sanitizaItem(item: Spotify.Item): string {
   return `${item.name} - ${item.artists
@@ -23,10 +23,10 @@ export class SpotifyService {
   public playing$ = new Subject<[boolean, string]>();
 
   constructor(private context: vscode.ExtensionContext) {
-    this._configura();
+    this._setup();
   }
 
-  private _configura() {
+  private _setup() {
     const authorization = this.context.globalState.get(TOKEN);
 
     this.api = axios.create({
@@ -35,11 +35,11 @@ export class SpotifyService {
         authorization,
       },
     });
-    this.autenticar();
-    this._atualizarPlayer();
+    this.startTimerUpdateToken();
+    this.startTimerUpdatePlayer();
   }
 
-  private _atualizarPlayer() {
+  private startTimerUpdatePlayer() {
     setInterval(async () => {
       try {
         const { data } = await this.api.get<Spotify.PlayerResponse>(
@@ -53,18 +53,15 @@ export class SpotifyService {
     }, 10_000);
   }
 
-  autenticar(cookie?: string) {
+  startTimerUpdateToken(cookie?: string, interval = 10_000) {
     setInterval(async () => {
       try {
-        if (cookie) {
-          this.context.globalState.update(COOKIE, cookie);
-          this.atualizarToken(cookie);
-          this._configura();
-        }
+        this.updateToken();
+        this._setup();
       } catch (err) {
         console.error(err);
       }
-    }, 10_000);
+    }, interval);
   }
 
   async play() {
@@ -88,27 +85,25 @@ export class SpotifyService {
       });
   }
 
-  async anterior() {
+  async prev() {
     return this.api
       .post(`v1/me/player/previous?device_id=${this.player.device.id}`)
       .then(() => vscode.window.showInformationMessage(ETIQUETA.prev));
   }
 
-  async proxima() {
+  async next() {
     return this.api
       .post(`v1/me/player/next?device_id=${this.player.device.id}`)
       .then(() => vscode.window.showInformationMessage(ETIQUETA.next));
   }
 
-  private async atualizarToken(cookie: string) {
+  async updateToken() {
     try {
+      const cookie = this.context.globalState.get<string>(COOKIE);
       const options = {
         method: 'GET',
         url: SP_URI_TOKEN,
-        headers: {
-          cookie: `sp_dc=${cookie};`,
-          'user-agent': USER_AGENT,
-        },
+        headers: { cookie: `sp_dc=${cookie};`, 'user-agent': USER_AGENT },
       } as AxiosRequestConfig;
 
       const { data } = await axios.request(options);
