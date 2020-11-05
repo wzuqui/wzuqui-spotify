@@ -2,48 +2,63 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import * as vscode from 'vscode';
 
-const TOKEN = 'wzuqui-spotify-accessToken';
+import {
+  COOKIE,
+  MENSAGEM_AUTENTICAR,
+  SP_URI_API,
+  SP_NEXT,
+  SP_PAUSE,
+  SP_PLAY,
+  SP_PREV,
+  SP_URI_TOKEN,
+  TOKEN,
+  USER_AGENT,
+} from '../constants';
 
 export class SpotifyService {
   private api!: AxiosInstance;
-  private deviceid = '41c6a2e93c5d782c697ebb4c6ab6591c5a838bfa';
+  private player!: Spotify.PlayerResponse;
 
   constructor(private context: vscode.ExtensionContext) {
-    this._configuraApi();
+    this._configura();
   }
 
-  private _configuraApi() {
+  private _configura() {
     const authorization = this.context.globalState.get(TOKEN);
 
     this.api = axios.create({
-      baseURL: 'https://api.spotify.com',
+      baseURL: SP_URI_API,
       headers: {
         authorization,
       },
     });
+    this._atualizarPlayer();
+  }
+
+  private _atualizarPlayer() {
+    setTimeout(async () => {
+      try {
+        const { data } = await this.api.get('v1/me/player');
+        this.player = data;
+      } catch (err) {
+        console.error(err);
+      }
+    }, 0);
   }
 
   async autenticar() {
     try {
-      const cookie = await vscode.window.showInputBox({
-        prompt:
-          'Entre no site https://open.spotify.com/get_access_token, copie o cookie sp_dc e cole aqui',
+      let cookie = await vscode.window.showInputBox({
+        prompt: MENSAGEM_AUTENTICAR,
       });
+
+      if (cookie === '') {
+        cookie = this.context.globalState.get<string>(COOKIE);
+      }
       if (cookie) {
-        const options = {
-          method: 'GET',
-          url: 'https://open.spotify.com/get_access_token',
-          headers: {
-            cookie: `sp_dc=${cookie};`,
-            'user-agent':
-              'Mozilla/5.0 (Windows NT 10.0;Win64;x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36 Edg/86.0.622.58',
-          },
-        } as AxiosRequestConfig;
-
-        const { data } = await axios.request(options);
-
-        this.context.globalState.update(TOKEN, `Bearer ${data.accessToken}`);
-        this._configuraApi();
+        this.context.globalState.update(COOKIE, cookie);
+        this.atualizarToken(cookie);
+        this._configura();
       }
     } catch (err) {
       console.error(err);
@@ -52,8 +67,8 @@ export class SpotifyService {
 
   async play() {
     return this.api
-      .put(`v1/me/player/play?device_id=${this.deviceid}`)
-      .then(() => vscode.window.showInformationMessage('Reproduzindo faixa'))
+      .put(`v1/me/player/play?device_id=${this.player.device.id}`)
+      .then(() => vscode.window.showInformationMessage(SP_PLAY))
       .catch((err) => {
         console.error(err);
       });
@@ -61,27 +76,40 @@ export class SpotifyService {
 
   async pause() {
     return this.api
-      .put(`v1/me/player/pause?device_id=${this.deviceid}`)
-      .then(() =>
-        vscode.window.showInformationMessage(
-          'Pausado a reprodução de um usuário'
-        )
-      );
+      .put(`v1/me/player/pause?device_id=${this.player.device.id}`)
+      .then(() => vscode.window.showInformationMessage(SP_PAUSE));
   }
 
   async anterior() {
     return this.api
-      .post(`v1/me/player/previous?device_id=${this.deviceid}`)
-      .then(() =>
-        vscode.window.showInformationMessage('Reproduzindo faixa anterior')
-      );
+      .post(`v1/me/player/previous?device_id=${this.player.device.id}`)
+      .then(() => vscode.window.showInformationMessage(SP_NEXT));
   }
 
   async proxima() {
     return this.api
-      .post(`v1/me/player/next?device_id=${this.deviceid}`)
-      .then(() =>
-        vscode.window.showInformationMessage('Reproduzindo próxima faixa')
-      );
+      .post(`v1/me/player/next?device_id=${this.player.device.id}`)
+      .then(() => vscode.window.showInformationMessage(SP_PREV));
+  }
+
+  private async atualizarToken(cookie: string) {
+    try {
+      const options = {
+        method: 'GET',
+        url: SP_URI_TOKEN,
+        headers: {
+          cookie: `sp_dc=${cookie};`,
+          'user-agent': USER_AGENT,
+        },
+      } as AxiosRequestConfig;
+
+      const { data } = await axios.request(options);
+      const token = `Bearer ${data.accessToken}`;
+
+      this.context.globalState.update(TOKEN, token);
+      return token;
+    } catch (err) {
+      vscode.window.showInformationMessage(err);
+    }
   }
 }

@@ -1,8 +1,9 @@
 {
   "name": "wzuqui-spotify",
   "displayName": "wzuqui-spotify",
+  "publisher": "wzuqui-spotify",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.50.0"
   },
@@ -10,18 +11,18 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:wzuqui-spotify.autenticar",
+    "onCommand:wzuqui-spotify.login",
     "onCommand:wzuqui-spotify.play",
     "onCommand:wzuqui-spotify.pause",
-    "onCommand:wzuqui-spotify.anterior",
-    "onCommand:wzuqui-spotify.proxima"
+    "onCommand:wzuqui-spotify.prev",
+    "onCommand:wzuqui-spotify.next"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "wzuqui-spotify.autenticar",
-        "title": "wZuqui Spotify autenticar"
+        "command": "wzuqui-spotify.login",
+        "title": "wZuqui Spotify login"
       },
       {
         "command": "wzuqui-spotify.play",
@@ -32,12 +33,12 @@
         "title": "wZuqui Spotify pause"
       },
       {
-        "command": "wzuqui-spotify.anterior",
-        "title": "wZuqui Spotify anterior"
+        "command": "wzuqui-spotify.prev",
+        "title": "wZuqui Spotify prev"
       },
       {
-        "command": "wzuqui-spotify.proxima",
-        "title": "wZuqui Spotify proxima"
+        "command": "wzuqui-spotify.next",
+        "title": "wZuqui Spotify next"
       }
     ]
   },
@@ -47,7 +48,8 @@
     "lint": "eslint src --ext ts",
     "watch": "tsc -watch -p ./",
     "pretest": "yarn run compile && yarn run lint",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "deploy": "vsce publish"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
