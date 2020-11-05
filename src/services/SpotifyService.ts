@@ -2,18 +2,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import * as vscode from 'vscode';
 
-import {
-  COOKIE,
-  MENSAGEM_AUTENTICAR,
-  SP_URI_API,
-  SP_NEXT,
-  SP_PAUSE,
-  SP_PLAY,
-  SP_PREV,
-  SP_URI_TOKEN,
-  TOKEN,
-  USER_AGENT,
-} from '../constants';
+import { COOKIE, MENSAGEM_AUTENTICAR, SP_NEXT, SP_PAUSE, SP_PLAY, SP_PREV, SP_URI_API, SP_URI_TOKEN, TOKEN, USER_AGENT } from '../constants';
 
 export class SpotifyService {
   private api!: AxiosInstance;
@@ -83,13 +72,13 @@ export class SpotifyService {
   async anterior() {
     return this.api
       .post(`v1/me/player/previous?device_id=${this.player.device.id}`)
-      .then(() => vscode.window.showInformationMessage(SP_NEXT));
+      .then(() => vscode.window.showInformationMessage(SP_PREV));
   }
 
   async proxima() {
     return this.api
       .post(`v1/me/player/next?device_id=${this.player.device.id}`)
-      .then(() => vscode.window.showInformationMessage(SP_PREV));
+      .then(() => vscode.window.showInformationMessage(SP_NEXT));
   }
 
   private async atualizarToken(cookie: string) {
