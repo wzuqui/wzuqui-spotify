@@ -2,10 +2,14 @@
 
 all commands are in F1
 
+# login
+
+https://open.spotify.com/get_access_token
+
 # command
 
-autenticar
-play
-pause
-anterior
-proxima
+- login
+- play
+- pause
+- prev
+- next
